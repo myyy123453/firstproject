@@ -1,0 +1,328 @@
+class FileUploadModelForm(forms.ModelForm):
+    # 定义表单的元素
+    class Meta:
+        # 定义表单的模型
+        model = File
+        # 定义表单的字段
+        fields = ['file', 'upload_method']
+        # 定义表单的框
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+            'upload_method': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+    # 校验文件
+    def clean_file(self):
+        file = self.cleaned_data['file']
+        ext = file.name.split('.')[-1].lower()
+        # 校验文件类型
+        if ext not in ['jpg', 'pdf', 'xls', 'xlsx']:
+            raise forms.ValidationError('Only jpg, pdf and xlsx files are allowed.')
+        return fileclass FileUploadModelForm(forms.ModelForm):
+    # 定义表单的元素
+    class Meta:
+        # 定义表单的模型
+        model = File
+        # 定义表单的字段
+        fields = ['file', 'upload_method']
+        # 定义表单的框
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+            'upload_method': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+    # 校验文件
+    def clean_file(self):
+        file = self.cleaned_data['file']
+        ext = file.name.split('.')[-1].lower()
+        # 校验文件类型
+        if ext not in ['jpg', 'pdf', 'xls', 'xlsx']:
+            raise forms.ValidationError('Only jpg, pdf and xlsx files are allowed.')
+        return fileclass FileUploadModelForm(forms.ModelForm):
+    # 定义表单模型
+    class Meta:
+        # 模型类
+        model = File
+        # 定义表单字段
+        fields = ['file', 'upload_method']
+        # 定义表单框
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+            'upload_method': forms.TextInput(attrs={'class': 'form-control'}),
+        }class FileUploadModelForm(forms.ModelForm):
+    # 定义表单模型
+    class Meta:
+        # 模型类
+        model = File
+        # 定义表单字段
+        fields = ['file', 'upload_method']
+        # 定义表单框
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+            'upload_method': forms.TextInput(attrs={'class': 'form-control'}),
+        }from django.shortcuts import render, redirect
+from.models import File
+from.forms import FileUploadForm
+import os
+import uuid
+from django.http import JsonResponse
+from django.template.defaultfilters import filesizeformat
+
+
+def file_list(request):
+    # 获取所有文件
+    files = File.objects.all().order_by("-id")
+    # 渲染文件列表页面
+    return render(request, "file_upload/file_list.html", {"files": files})
+
+
+def file_upload(request):
+    # 判断请求方法
+    if request.method == "POST":
+        # 实例化表单
+        form = FileUploadForm(request.POST, request.FILES)
+        # 判断表单是否有效
+        if form.is_valid():
+            # get cleaned data
+            # 获取表单中的数据
+            upload_method = form.cleaned_data.get("upload_method")
+            raw_file = form.cleaned_data.get("file")
+            # 实例化新文件
+            new_file = File()
+            # 保存文件
+            new_file.file = handle_uploaded_file(raw_file)
+            new_file.upload_method = upload_method
+            new_file.save()
+            # 重定向到文件列表页面
+            return redirect("/file/")
+
+    else:
+        # 实例化表单
+        form = FileUploadForm()
+    # 渲染文件上传页面
+    return render(request, "file_upload/file_upload.html", {"form": form,
+                                                            'heading': 'Upload files with Regular Form'})
+
+
+def handle_uploaded_file(file):
+    # 获取文件扩展名
+    ext = file.name.split('.')[-1]
+    # 创建文件名
+    file_name = '{}.{}'.format(uuid.uuid4().hex[:10], ext)
+
+    # file path relative to 'media' folder
+    # 文件路径
+    file_path = os.path.join('files', file_name)
+    # 相对路径
+    absolute_file_path = os.path.join('media', 'files', file_name)
+
+    # 文件夹
+    directory = os.path.dirname(absolute_file_path)
+    # 判断文件夹是否存在
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # 将文件写入文件夹
+    with open(absolute_file_path, 'wb+') as destination:
+        for chunk in file.chunks():
+            destination.write(chunk)
+
+    # 返回文件路径
+    return file_pathfrom django.shortcuts import render, redirect
+from.models import File
+from.forms import FileUploadForm
+import os
+import uuid
+from django.http import JsonResponse
+from django.template.defaultfilters import filesizeformat
+
+
+def file_list(request):
+    # 获取所有文件
+    files = File.objects.all().order_by("-id")
+    # 渲染文件列表页面
+    return render(request, "file_upload/file_list.html", {"files": files})
+
+
+def file_upload(request):
+    # 判断请求方法
+    if request.method == "POST":
+        # 实例化表单
+        form = FileUploadForm(request.POST, request.FILES)
+        # 判断表单是否有效
+        if form.is_valid():
+            # get cleaned data
+            # 获取表单中的数据
+            upload_method = form.cleaned_data.get("upload_method")
+            raw_file = form.cleaned_data.get("file")
+            # 实例化新文件
+            new_file = File()
+            # 保存文件
+            new_file.file = handle_uploaded_file(raw_file)
+            new_file.upload_method = upload_method
+            new_file.save()
+            # 重定向到文件列表页面
+            return redirect("/file/")
+
+    else:
+        # 实例化表单
+        form = FileUploadForm()
+    # 渲染文件上传页面
+    return render(request, "file_upload/file_upload.html", {"form": form,
+                                                            'heading': 'Upload files with Regular Form'})
+
+
+def handle_uploaded_file(file):
+    # 获取文件扩展名
+    ext = file.name.split('.')[-1]
+    # 创建文件名
+    file_name = '{}.{}'.format(uuid.uuid4().hex[:10], ext)
+
+    # file path relative to 'media' folder
+    # 文件路径
+    file_path = os.path.join('files', file_name)
+    # 相对路径
+    absolute_file_path = os.path.join('media', 'files', file_name)
+
+    # 文件夹
+    directory = os.path.dirname(absolute_file_path)
+    # 判断文件夹是否存在
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # 将文件写入文件夹
+    with open(absolute_file_path, 'wb+') as destination:
+        for chunk in file.chunks():
+            destination.write(chunk)
+
+    # 返回文件路径
+    return file_pathdef clean_file(self):
+        # 获取文件
+        file = self.cleaned_data['file']
+        # 获取文件后缀
+        ext = file.name.split('.')[-1].lower()
+        # 判断文件后缀是否为jpg, pdf, xls, xlsx
+        if ext not in ['jpg', 'pdf', 'xls', 'xlsx']:
+            # 如果不是，抛出错误
+            raise forms.ValidationError('Only jpg, pdf and xlsx files are allowed.')
+        # 返回文件
+        return filedef clean_file(self):
+        # 获取文件
+        file = self.cleaned_data['file']
+        # 获取文件后缀
+        ext = file.name.split('.')[-1].lower()
+        # 判断文件后缀是否为jpg, pdf, xls, xlsx
+        if ext not in ['jpg', 'pdf', 'xls', 'xlsx']:
+            # 如果不是，抛出错误
+            raise forms.ValidationError('Only jpg, pdf and xlsx files are allowed.')
+        # 返回文件
+        return filefilename = '{}.{}'.format(uuid.uuid4().hex[:10], ext)filename = '{}.{}'.format(uuid.uuid4().hex[:10], ext)<!DOCTYPE html>
+ <html>
+ <head>
+   <meta charset="utf-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <title>控制面板</title>
+   <!-- Tell the browser to be responsive to screen width -->
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <!-- Theme style -->
+     <link rel="stylesheet" href="https://adminlte.io/themes/AdminLTE/bower_components/bootstrap/dist/css/bootstrap.min.css">
+   <link rel="stylesheet" href="https://adminlte.io/themes/AdminLTE/dist/css/AdminLTE.min.css">
+ </head>
+ <body>
+ <div class="wrapper">
+  <!-- Main content -->
+{#     <p class="content">#}
+       <div class="container">
+         <!-- Small boxes (Stat box) -->
+         <div class="row">
+           <div class="col-sm-4">
+             <!-- small box -->
+             <div class="small-box bg-success">
+               <div class="inner">
+                 <h3>{{ user_count }}</h3>
+                 <p>用户总数</p>
+               </div>
+               <div class="icon">
+                 <i class="ion ion-bag"></i>
+               </div>
+               <a href="#" class="small-box-footer">更多信息 <i class="fas fa-arrow-circle-right"></i></a>
+             </div>
+           </div>
+           <!-- ./col -->
+           <div class="col-sm-4">
+             <!-- small box -->
+             <div class="small-box bg-danger">
+               <div class="inner">
+                 <h3>{{ task_count }}</h3>
+                 <p>任务总数</p>
+               </div>
+               <div class="icon">
+                 <i class="ion ion-stats-bars"></i>
+               </div>
+               <a href="#" class="small-box-footer">更多信息 <i class="fas fa-arrow-circle-right"></i></a>
+             </div>
+           </div>
+           <!-- ./col -->
+              <div class="col-sm-4">
+             <!-- small box -->
+             <div class="small-box bg-info">
+               <div class="inner">
+                 <h3>{{ user_count }}</h3>
+
+                 <p>用户总数</p>
+               </div>
+               <div class="icon">
+                 <i class="ion ion-bag"></i>
+               </div>
+               <a href="#" class="small-box-footer">更多信息 <i class="fas fa-arrow-circle-right"></i></a>
+             </div>
+           </div>
+           <!-- ./col -->
+                 <div class="col-sm-4">
+             <!-- small box -->
+             <div class="small-box bg-info">
+               <div class="inner">
+                 <h3>{{ task_count }}</h3>
+
+                 <p>任务总数</p>
+               </div>
+               <div class="icon">
+                 <i class="ion ion-stats-bars"></i>
+               </div>
+               <a href="#" class="small-box-footer">更多信息 <i class="fas fa-arrow-circle-right"></i></a>
+             </div>
+           </div>
+               <!-- ./col -->
+                 <div class="col-sm-4">
+                 <!-- small box -->
+                 <div class="small-box bg-success">
+                   <div class="inner">
+                     <h3>{{ user_count }}</h3>
+                     <p>用户总数</p>
+                   </div>
+                   <div class="icon">
+                     <i class="ion ion-bag"></i>
+                   </div>
+                   <a href="#" class="small-box-footer">更多信息 <i class="fas fa-arrow-circle-right"></i></a>
+                 </div>
+               </div>
+               <!-- ./col -->
+                <div class="col-sm-4">
+             <!-- small box -->
+             <div class="small-box bg-danger">
+               <div class="inner">
+                 <h3>{{ task_count }}</h3>
+                 <p>任务总数</p>
+               </div>
+               <div class="icon">
+                 <i class="ion ion-stats-bars"></i>
+               </div>
+               <a href="#" class="small-box-footer">更多信息 <i class="fas fa-arrow-circle-right"></i></a>
+             </div>
+           </div>
+
+         </div>
+       </div>
+{#     </p>#}
+   </div>
+ </body>

@@ -1,0 +1,42 @@
+{% extends 'admin/base_site.html' % }
+
+{% block content % }
+<div class = "container" style = "margin-bottom: 20px;" >
+    <h1 > {{title}} < /h1 >
+    <form id = "cardForm" method = "post" action = "" enctype = "multipart/form-data" >
+        {% csrf_token % }
+        {{form.as_p}}
+        <br > <br >
+        <button type = "submit" class = "el-btn el-btn--primary" > 确定 < /button >
+    < / form >
+< / div >
+
+{% if not_import_vcards % }
+<div style = "height: 20px; border-top: 1px solid #000;" >
+< / div >
+
+<div style = "margin-top: 20px;" >
+    <h2 > 未在系统内发现下列虚拟卡, 请处理后重新上传: < /h2 >
+
+    <table style = "width: 100%; border-collapse: collapse;" >
+       <thead >
+           <tr >
+                <th style = "padding: 8px; text-align: left; border-bottom: 1px solid #ddd; background-color: #f2f2f2;" > transid < /th >
+                <th style = "padding: 8px; text-align: left; border-bottom: 1px solid #ddd; background-color: #f2f2f2;" > 卡号 < /th >
+                <th style = "padding: 8px; text-align: left; border-bottom: 1px solid #ddd; background-color: #f2f2f2;" > 操作 < /th >
+            < /tr >
+        < /thead >
+        <tbody >
+            { % for ncard in not_import_vcards % }
+                <tr style = "background-color: {% cycle 'white' 'lightgray' %};">
+                    <td style = "padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">{{ ncard.0 }}</td>
+                    <td style = "padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">{{ ncard.1 }}</td>
+                    <td style = "padding: 8px; text-align: left; border-bottom: 1px solid #ddd;"><button onclick="self.parent.app.openTab({'name':'添加新卡', 'icon': 'fas fa-user-tie', 'url':'/general/addcard/?ctid={{ ncard.0 }}'})"  class="el-button el-button--primary el-button--small">添加此卡</button></td>
+                < /tr >
+            { % endfor % }
+        < /tbody >
+    < /table >
+< /div >
+{ % endif % }
+
+{ % endblock % }
